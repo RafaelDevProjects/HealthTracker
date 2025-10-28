@@ -38,6 +38,7 @@ Sistema completo desenvolvido em C# .NET 8 para monitoramento e gerenciamento de
 - System.Text.Json: Serialização de dados
 
 ## 📁 Estrutura do Projeto
+```
 HealthTracker/
 ├── Controllers/ # Controladores MVC
 ├── Services/ # Serviços de aplicação e domínio
@@ -46,7 +47,7 @@ HealthTracker/
 ├── Utils/ # Utilitários e helpers
 ├── Models/ # Modelos de domínio
 ├── Interfaces/ # Contratos e interfaces
-
+```
 
 ## 🏃‍♂️ Tipos de Atividades Suportadas
 1. 💪 Exercício - Atividades físicas gerais
