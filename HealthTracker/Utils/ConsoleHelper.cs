@@ -63,7 +63,7 @@ namespace HealthTracker.Utils
         public static void PrintInfo(string message)
         {
             Console.ForegroundColor = Colors.Info;
-            Console.WriteLine($"ℹ️ {message}");
+            Console.WriteLine($" {message}");
             Console.ResetColor();
         }
 
@@ -88,7 +88,7 @@ namespace HealthTracker.Utils
         {
             Console.ForegroundColor = Colors.SubHeader;
             Console.WriteLine($"\n{new string('-', 50)}");
-            Console.WriteLine($" 🎯 {title}");
+            Console.WriteLine($" {title}");
             Console.WriteLine(new string('-', 50));
             Console.ResetColor();
         }
@@ -99,7 +99,7 @@ namespace HealthTracker.Utils
         public static void PrintSectionTitle(string title)
         {
             Console.ForegroundColor = Colors.Info;
-            Console.WriteLine($"\n📁 {title}");
+            Console.WriteLine($"\n {title}");
             Console.WriteLine(new string('─', title.Length + 4));
             Console.ResetColor();
         }
@@ -110,7 +110,7 @@ namespace HealthTracker.Utils
         public static void PrintHighlight(string message)
         {
             Console.ForegroundColor = Colors.Highlight;
-            Console.WriteLine($"✨ {message}");
+            Console.WriteLine($" {message}");
             Console.ResetColor();
         }
 
@@ -288,7 +288,7 @@ namespace HealthTracker.Utils
                         PrintWarning("Data não pode ser no futuro.");
                         continue;
                     }
-                    PrintInfo($"📅 Data interpretada como: {result:dd/MM/yyyy}");
+                    PrintInfo($"Data interpretada como: {result:dd/MM/yyyy}");
                     return result;
                 }
 
@@ -429,7 +429,7 @@ namespace HealthTracker.Utils
         /// </summary>
         public static void ShowDateFormatExample()
         {
-            PrintInfo("📅 Formato de data: dd/MM/aaaa (ex: 15/11/2024)");
+            PrintInfo("Formato de data: dd/MM/aaaa (ex: 15/11/2024)");
         }
 
         /// <summary>

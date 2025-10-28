@@ -141,7 +141,6 @@ namespace HealthTracker.Controllers
             // Obter dados opcionais
             var notes = ConsoleHelper.ReadLineWithPrompt("Notas (opcional)");
 
-            // CORREÇÃO: Intensidade opcional
             Console.WriteLine("Intensidade (1-10, opcional - pressione Enter para pular):");
             var intensityInput = Console.ReadLine()?.Trim();
             var intensity = 5; // valor padrão
@@ -213,8 +212,34 @@ namespace HealthTracker.Controllers
                         Console.WriteLine($"  {i + 1}. {typesResult.Data[i]}");
                     }
 
-                    var typeNumber = ConsoleHelper.ReadIntWithPrompt("Número do tipo de atividade", 1, typesResult.Data.Count);
-                    var activityType = typesResult.Data[typeNumber - 1];
+                    string activityType;
+                    while (true)
+                    {
+                        var input = ConsoleHelper.ReadLineWithPrompt("Tipo de atividade (digite o número ou nome)", true);
+
+                        // Se o usuário digitou um número
+                        if (int.TryParse(input, out int number) && number >= 1 && number <= typesResult.Data.Count)
+                        {
+                            activityType = typesResult.Data[number - 1];
+                            break;
+                        }
+                        // Se o usuário digitou um nome que existe na lista
+                        else if (typesResult.Data.Contains(input, StringComparer.OrdinalIgnoreCase))
+                        {
+                            activityType = typesResult.Data.First(t =>
+                                t.Equals(input, StringComparison.OrdinalIgnoreCase));
+                            break;
+                        }
+                        else
+                        {
+                            ConsoleHelper.PrintError($"Tipo inválido! Digite um número (1-{typesResult.Data.Count}) ou o nome da atividade.");
+                            Console.WriteLine("Tipos disponíveis:");
+                            for (int i = 0; i < typesResult.Data.Count; i++)
+                            {
+                                Console.WriteLine($"  {i + 1}. {typesResult.Data[i]}");
+                            }
+                        }
+                    }
 
                     // Buscar atividades pelo tipo selecionado
                     var allActivities = _healthService.GetAllActivities();
@@ -305,9 +330,52 @@ namespace HealthTracker.Controllers
             Console.WriteLine($"• Intensidade: {activityResult.Data.Intensity}");
             Console.WriteLine();
 
-            // Obter novos dados
-            var newType = ConsoleHelper.ReadLineWithPrompt($"Novo tipo de atividade [{activityResult.Data.ActivityType}]")
-                         ?? activityResult.Data.ActivityType;
+            // Mostrar tipos disponíveis
+            var typesResult = _healthService.GetAvailableActivityTypes();
+            if (typesResult.Success && typesResult.Data.Any())
+            {
+                Console.WriteLine("\nTipos de atividade disponíveis:");
+                for (int i = 0; i < typesResult.Data.Count; i++)
+                {
+                    Console.WriteLine($"  {i + 1}. {typesResult.Data[i]}");
+                }
+            }
+
+            string newType;
+            while (true)
+            {
+                var input = ConsoleHelper.ReadLineWithPrompt($"Novo tipo de atividade [{activityResult.Data.ActivityType}] (digite número ou nome)")
+                           ?? activityResult.Data.ActivityType;
+
+                // Se o usuário digitou um número
+                if (int.TryParse(input, out int number) && number >= 1 && number <= typesResult.Data.Count)
+                {
+                    newType = typesResult.Data[number - 1];
+                    break;
+                }
+                // Se o usuário digitou um nome que existe na lista
+                else if (typesResult.Data.Contains(input, StringComparer.OrdinalIgnoreCase))
+                {
+                    newType = typesResult.Data.First(t =>
+                        t.Equals(input, StringComparison.OrdinalIgnoreCase));
+                    break;
+                }
+                else if (input.Equals(activityResult.Data.ActivityType, StringComparison.OrdinalIgnoreCase))
+                {
+                    newType = activityResult.Data.ActivityType;
+                    break;
+                }
+                else
+                {
+                    ConsoleHelper.PrintError($"Tipo inválido! Digite um número (1-{typesResult.Data.Count}) ou o nome da atividade.");
+                    Console.WriteLine("Tipos disponíveis:");
+                    for (int i = 0; i < typesResult.Data.Count; i++)
+                    {
+                        Console.WriteLine($"  {i + 1}. {typesResult.Data[i]}");
+                    }
+                }
+            }
+
             var newDate = ConsoleHelper.ReadDateWithPrompt($"Nova data [{activityResult.Data.Date.ToBrazilianDate()}]");
             var newValue = ConsoleHelper.ReadDoubleWithPrompt($"Novo valor [{activityResult.Data.Value}]", 0, 10000);
             var newNotes = ConsoleHelper.ReadLineWithPrompt($"Novas notas [{activityResult.Data.Notes}]")
@@ -372,7 +440,6 @@ namespace HealthTracker.Controllers
         {
             ConsoleHelper.PrintHeader("ESTATÍSTICAS DETALHADAS");
 
-            // Mostrar exemplo de formato de data
             DateHelper.DisplayDateFormatHelp();
 
             var typesResult = _healthService.GetAvailableActivityTypes();
@@ -383,13 +450,41 @@ namespace HealthTracker.Controllers
                 return;
             }
 
-            Console.WriteLine("Tipos de atividade:");
+            Console.WriteLine("Tipos de atividade disponíveis:");
             for (int i = 0; i < typesResult.Data.Count; i++)
             {
                 Console.WriteLine($"  {i + 1}. {typesResult.Data[i]}");
             }
 
-            var selectedType = ConsoleHelper.ReadLineWithPrompt("Tipo de atividade para análise (Procure pelo nome da atividade)", true);
+            string selectedType;
+            while (true)
+            {
+                var input = ConsoleHelper.ReadLineWithPrompt("Tipo de atividade para análise (digite o número ou nome)", true);
+
+                // Se o usuário digitou um número
+                if (int.TryParse(input, out int number) && number >= 1 && number <= typesResult.Data.Count)
+                {
+                    selectedType = typesResult.Data[number - 1];
+                    break;
+                }
+                // Se o usuário digitou um nome que existe na lista
+                else if (typesResult.Data.Contains(input, StringComparer.OrdinalIgnoreCase))
+                {
+                    selectedType = typesResult.Data.First(t =>
+                        t.Equals(input, StringComparison.OrdinalIgnoreCase));
+                    break;
+                }
+                else
+                {
+                    ConsoleHelper.PrintError($"Tipo inválido! Digite um número (1-{typesResult.Data.Count}) ou o nome da atividade.");
+                    Console.WriteLine("Tipos disponíveis:");
+                    for (int i = 0; i < typesResult.Data.Count; i++)
+                    {
+                        Console.WriteLine($"  {i + 1}. {typesResult.Data[i]}");
+                    }
+                }
+            }
+
             var startDate = ConsoleHelper.ReadDateWithPrompt("Data inicial");
             var endDate = ConsoleHelper.ReadDateWithPrompt("Data final");
 
@@ -463,7 +558,41 @@ namespace HealthTracker.Controllers
                 return;
             }
 
-            var selectedType = ConsoleHelper.ReadLineWithPrompt("Tipo de atividade", true);
+            Console.WriteLine("Tipos de atividade disponíveis:");
+            for (int i = 0; i < typesResult.Data.Count; i++)
+            {
+                Console.WriteLine($"  {i + 1}. {typesResult.Data[i]}");
+            }
+
+            string selectedType;
+            while (true)
+            {
+                var input = ConsoleHelper.ReadLineWithPrompt("Tipo de atividade (digite o número ou nome)", true);
+
+                // Se o usuário digitou um número
+                if (int.TryParse(input, out int number) && number >= 1 && number <= typesResult.Data.Count)
+                {
+                    selectedType = typesResult.Data[number - 1];
+                    break;
+                }
+                // Se o usuário digitou um nome que existe na lista
+                else if (typesResult.Data.Contains(input, StringComparer.OrdinalIgnoreCase))
+                {
+                    selectedType = typesResult.Data.First(t =>
+                        t.Equals(input, StringComparison.OrdinalIgnoreCase));
+                    break;
+                }
+                else
+                {
+                    ConsoleHelper.PrintError($"Tipo inválido! Digite um número (1-{typesResult.Data.Count}) ou o nome da atividade.");
+                    Console.WriteLine("Tipos disponíveis:");
+                    for (int i = 0; i < typesResult.Data.Count; i++)
+                    {
+                        Console.WriteLine($"  {i + 1}. {typesResult.Data[i]}");
+                    }
+                }
+            }
+
             var startDate = ConsoleHelper.ReadDateWithPrompt("Data inicial");
             var endDate = ConsoleHelper.ReadDateWithPrompt("Data final");
 
@@ -578,7 +707,25 @@ namespace HealthTracker.Controllers
         {
             ConsoleHelper.PrintHeader("BUSCAR REGISTROS");
 
-            var searchTerm = ConsoleHelper.ReadLineWithPrompt("Termo de busca (pode ser tipo de atividade ou texto nas notas)", true);
+            // Mostrar tipos disponíveis para ajudar na busca
+            var typesResult = _healthService.GetAvailableActivityTypes();
+            if (typesResult.Success && typesResult.Data.Any())
+            {
+                Console.WriteLine("\nTipos de atividade disponíveis para busca:");
+                for (int i = 0; i < typesResult.Data.Count; i++)
+                {
+                    Console.WriteLine($"  {i + 1}. {typesResult.Data[i]}");
+                }
+            }
+
+            var searchTerm = ConsoleHelper.ReadLineWithPrompt("Termo de busca (pode ser número do tipo, nome do tipo ou texto nas notas)", true);
+
+            // Se o usuário digitou um número, converter para o nome do tipo
+            if (int.TryParse(searchTerm, out int typeNumber) && typeNumber >= 1 && typeNumber <= typesResult.Data.Count)
+            {
+                searchTerm = typesResult.Data[typeNumber - 1];
+            }
+
             var result = _healthService.SearchActivities(searchTerm);
 
             if (!result.Success)
